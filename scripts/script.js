@@ -88,6 +88,7 @@ class TileGrid {
   constructor(size, difficulty) {
     this.rows = size;
     this.columns = size;
+    this.numTiles = 0;
     this.difficulty = difficulty;
     this.gridID = "tile-grid";
     this.$grid = $(document.createElement("table")).attr("id", this.gridID);
@@ -96,6 +97,7 @@ class TileGrid {
     this.prevFlippedTileNum = null;
     this.prevFlippedAnimal = null;
     this.allowClick = true;
+    this.tilesSolved = 0;
   }
   AddGrid(screen) {
     let cellNum = 1;
@@ -131,21 +133,21 @@ class TileGrid {
     // If numTiles odd then we need a joker tile
     let jokerTileIndex = 0;
     // Get total number of tiles
-    let numTiles = this.rows * this.columns;
+    this.numTiles = this.rows * this.columns;
     // Check if number of tiles is even or odd
-    let isOdd = numTiles % 2 == 1 ? true : false;
+    let isOdd = this.numTiles % 2 == 1 ? true : false;
     // Calculate num animals; one tile will be joker's if numTiles is odd
-    let numAnimals = isOdd ? (numTiles - 1) / 2 : numTiles / 2;
+    let numAnimals = isOdd ? (this.numTiles - 1) / 2 : this.numTiles / 2;
     //Get list of random animals
     let animals = animalImages.GetRandAnimals(numAnimals);
     //If numTiles is odd select a joker
     if (isOdd) {
-      jokerTileIndex = 1 + Math.floor(Math.random() * numTiles);
+      jokerTileIndex = 1 + Math.floor(Math.random() * this.numTiles);
       this.animals[jokerTileIndex] = "joker";
     }
     // Create an array of cell / tile indices and shuffle them
     let indices = [];
-    for (let i = 1; i <= numTiles; i++) {
+    for (let i = 1; i <= this.numTiles; i++) {
       if (i === jokerTileIndex) {
         continue;
       } else {
@@ -159,32 +161,33 @@ class TileGrid {
       this.animals[indices[2 * i + 1]] = animals[i];
     }
     // Repeat Pairs based on difficulty level
-    if(this.difficulty=="Easy"){
-      this.RepeatPairs(Math.floor(this.rows/2)+1);
-      }
-    else if(this.difficulty=="Medium"){
-      this.RepeatPairs(Math.floor(this.rows/2));
+    if (this.difficulty == "Easy") {
+      this.RepeatPairs(Math.floor(this.rows / 2) + 1);
+    } else if (this.difficulty == "Medium") {
+      this.RepeatPairs(Math.floor(this.rows / 2));
     }
   }
   // Function that repeats animals based on the difficulty of game
   RepeatPairs(repeatPairs) {
-    console.log(repeatPairs);
     // Get all paired indices
     let pairs = this.IdentifyPairs();
     for (let i = 0; i < repeatPairs; i++) {
       // Store all animals in an array
       const animalsArr = Object.keys(pairs);
       // Select a random animal from pairs
-      let firstRandAnimal = animalsArr[Math.floor(Math.random()*animalsArr.length)];
+      let firstRandAnimal =
+        animalsArr[Math.floor(Math.random() * animalsArr.length)];
       // Select another random animal from pairs
-      let secondRandAnimal = animalsArr[Math.floor(Math.random()*animalsArr.length)];
+      let secondRandAnimal =
+        animalsArr[Math.floor(Math.random() * animalsArr.length)];
       // Ensure they aren't the same
       while (firstRandAnimal === secondRandAnimal) {
-        secondRandAnimal = animalsArr[Math.floor(Math.random()*animalsArr.length)];
+        secondRandAnimal =
+          animalsArr[Math.floor(Math.random() * animalsArr.length)];
       }
       // Set indices of second animal's pair to first animal in the this.animals object
-      this.animals[pairs[secondRandAnimal][0]]=firstRandAnimal;
-      this.animals[pairs[secondRandAnimal][1]]=firstRandAnimal;
+      this.animals[pairs[secondRandAnimal][0]] = firstRandAnimal;
+      this.animals[pairs[secondRandAnimal][1]] = firstRandAnimal;
       // Remove both animals from pairs
       delete pairs[firstRandAnimal];
       delete pairs[secondRandAnimal];
@@ -192,18 +195,16 @@ class TileGrid {
   }
   // Get all paired indices
   IdentifyPairs() {
-    const pairs = {}
+    const pairs = {};
     for (let index in this.animals) {
       let animal = this.animals[index];
       // Skip joker
       if (animal === "joker") {
         continue;
       }
-
       if (pairs[animal] === undefined) {
         pairs[animal] = [index];
-      }
-      else {
+      } else {
         pairs[animal].push(index);
       }
     }
@@ -253,7 +254,6 @@ class TileGrid {
     }
   }
 }
-
 // Declaring and initlialising game object
 const game = {
   title: "snapimals",
@@ -262,11 +262,20 @@ const game = {
   numPlayers: 1,
   players: [],
   activePlayer: 0,
+  winnerPlayer:null,
   gridSize: null,
   isTimed: null,
   difficulty: null,
+  timePerTurn: null,
+  timeRemaining: null,
+  timerId: null,
   tileGrid: null,
   typeWriterInterval: 50,
+  domPlaybtn: $("#play-btn"),
+  domPausebtn: $("#pause-btn"),
+  domStopbtn: $("#stop-btn"),
+  domClock: $("#clock"),
+  domPauseOverLay: $("#pause-overlay"),
   SwitchScreen: function (newScreen) {
     $(`#${newScreen}`)
       .removeClass("dormant-screen")
@@ -291,8 +300,11 @@ const game = {
     if (this.activeScreen == "game-screen") {
       this.SetupGameBoard();
     }
+    if(this.activeScreen== "game-over-screen"){
+
+    }
   },
-  ToggleRunning: function () { },
+  ToggleRunning: function () {},
   Init: function () {
     const introText = `Welcome, Explorer! Embark on a memory safari to match captivating creatures in this uncharted wilderness. Get ready, the adventure starts now!`;
     // Add event listener to skip-btn to skip-text
@@ -301,7 +313,7 @@ const game = {
     this.TypeWriter(introText, "intro-para", 0, () => {
       // Add a button to indicate that the player can move on to setup screen
       $("#splash-screen").append(
-        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d" id = "continue-btn">c o n t i n u e !</button>`
+        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d continue-btns" id = "continue-btn">c o n t i n u e !</button>`
       );
       // Add event listener to continue-btn to move to next screen
       $("#continue-btn").on("click", () => game.SwitchScreen("setup-screen-1"));
@@ -338,16 +350,16 @@ const game = {
     this.TypeWriter(numPlayersPrompt, "num-players-prompt", 0, () => {
       // Add options for numplayers
       $("#num-players-options").append(
-        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d num-players" id="1-player">&nbspThere is just me!</button>`
+        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d num-players continue-btns" id="1-player">&nbspThere is just me!</button>`
       );
       $("#num-players-options").append(
-        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d num-players" id="2-player">There are 2 of us!</button>`
+        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d num-players continue-btns" id="2-player">There are 2 of us!</button>`
       );
       $("#num-players-options").append(
-        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d num-players" id="3-player">There are 3 of us!</button>`
+        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d num-players continue-btns" id="3-player">There are 3 of us!</button>`
       );
       $("#num-players-options").append(
-        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d num-players" id="4-player">There are 4 of us!</button>`
+        `<button type="button" class="btn btn-warning btn-lg box-shadow--10d num-players continue-btns" id="4-player">There are 4 of us!</button>`
       );
       // Add event listeners to form-submit-btn to create player and move to next screen
       $(".num-players").on("click", (event) => {
@@ -366,10 +378,12 @@ const game = {
     // Create prompt based on number of players
     const namesPrompt =
       game.numPlayers === 2
-        ? `Good ${game.CurrTime()} ${game.players[0].name
-        } and the other explorer! May I know your name?`
-        : `Good ${game.CurrTime()} ${game.players[0].name
-        } and the other explorers! May I know your names?`;
+        ? `Good ${game.CurrTime()} ${
+            game.players[0].name
+          } and the other explorer! May I know your name?`
+        : `Good ${game.CurrTime()} ${
+            game.players[0].name
+          } and the other explorers! May I know your names?`;
     // Add event listener to skip-btn to skip-text
     game.ActivateSkip();
     // Invoke the typewriter effect function to Read prompt and display name forms
@@ -413,7 +427,7 @@ const game = {
       $("#setup-screen-4")
         .append(form)
         .append(
-          `<button type="button" class="btn btn-warning" id = "game-setup-submit">c o n t i n u e !</button>`
+          `<button type="button" class="btn btn-warning continue-btns" id = "game-setup-submit">c o n t i n u e !</button>`
         );
       // Add event listener to continue button
       $("#game-setup-submit").on("click", () => {
@@ -429,6 +443,17 @@ const game = {
         // Make Player-1 as active
         game.activePlayer = game.players[0];
         game.HighlightActivePlayer();
+        // If time game then Start Timer
+        if (game.isTimed) {
+          if (game.difficulty === "Easy") {
+            game.timePerTurn = 10000;
+          } else if (game.difficulty === "Medium") {
+            game.timePerTurn = 7000;
+          } else {
+            game.timePerTurn = 5000;
+          }
+          game.StartTimer(game.timePerTurn);
+        }
       });
     });
   },
@@ -472,31 +497,140 @@ const game = {
   },
 
   SetupGameBoard: function () {
-    // Add players
+    // Add players to DOM
     for (let player of game.players) {
       player.UpdatePlayerDOM();
     }
+
     // Add a tile grid
     game.tileGrid = new TileGrid(game.gridSize, game.difficulty);
     game.tileGrid.AddGrid("game-board");
+
     // Add event listener to tiles
     $(".cell").on("click", game.TileClickHandler);
-  },
 
+    // Add event listeners to buttons and modify their appearances
+    game.domPlaybtn.removeClass("btn-success");
+    game.domPausebtn.addClass("btn-warning");
+    game.domStopbtn.addClass("btn-danger");
+    // Add event listeners to play-btn
+    game.domPlaybtn.on("click", () => {
+      game.ResumeGame();
+    });
+    // Add event listener to pause-btn
+    game.domPausebtn.on("click", () => {
+      game.PauseGame();
+    });
+    // Add event listener to stop-btn
+    game.domStopbtn.on("click", () => {
+      game.EndGame();
+    });
+    // Set game-running to true
+    game.isRunning = true;
+  },
+  ResumeGame() {
+    if (!game.isRunning) {
+      // Change game status
+      game.isRunning = true;
+      // Activate Pause btn
+      game.domPausebtn.addClass("btn-warning");
+      // Resume Timer if game is timed
+      if (game.isTimed) {
+        game.ResumeTimer();
+      }
+      // Reactivate Clicks
+      game.tileGrid.allowClick = true;
+      // Flip tile (if unflipped)
+      if (game.tileGrid.numTilesFlipped == 1) {
+        game.tileGrid.FlipTile(
+          game.tileGrid.prevFlippedTileNum,
+          game.tileGrid.animals[game.tileGrid.prevFlippedTileNum]
+        );
+      }
+      // Deactivate Play button
+      game.domPlaybtn.removeClass("btn-success");
+      // Remove the overlay
+      game.domPauseOverLay.css({ display: "none" });
+    }
+  },
+  PauseGame() {
+    if (game.isRunning) {
+      // Change game status
+      game.isRunning = false;
+      // Activate Play btn
+      game.domPlaybtn.addClass("btn-success");
+      //Pause Timer if game is timed
+      if (game.isTimed) {
+        game.PauseTimer();
+      }
+      // Unflip tile (if flipped)
+      if (game.tileGrid.numTilesFlipped == 1) {
+        game.tileGrid.UnflipTile(game.tileGrid.prevFlippedTileNum);
+      }
+      // Deactivate clicks
+      game.tileGrid.allowClick = false;
+      // Deactivate Pause btn
+      game.domPausebtn.removeClass("btn-warning");
+      // Add an overlay
+      game.domPauseOverLay.css({ display: "flex" });
+    }
+  },
+  EndGame: function () {
+    game.SwitchScreen("game-over-screen");
+    if (game.tileGrid.tilesSolved === game.tileGrid.numTiles) {
+      let topScore = -4;
+      let topScorerNames = [];
+      // Check top score
+      for(let i = 0;i<game.players.length;i++){
+        const player = game.players[i];
+        const score = player.score;
+        if(score>topScore){
+          topScore=score;
+        }
+      }
+
+      // Check how many players have topScore
+      for(let i = 0;i<game.players.length;i++){
+        const player = game.players[i];
+        const score = player.score;
+        if(score===topScore){
+          topScorerNames.push(player.name);
+          console.log(topScorerNames);
+        }
+      }
+      // Display winner(s)
+      let winnerText = null;
+      if(topScorerNames.length===1){
+        winnerText = `And the winner is ${topScorerNames[0]}!!!`
+      }
+      else if(topScorerNames.length===2){
+        winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} !!!`;
+      }
+      else if(topScorerNames.length===3){
+        winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]}!!!`;
+      }
+      else{
+        winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]} & ${topScorerNames[3]}!!!`;
+      }
+      game.TypeWriter(winnerText,"winner-text",0);
+    }
+  },
   TileClickHandler: (event) => {
     // Get the cell id
     let cellId = event.target.id;
     // Get the cell num
     let tileNum = parseInt(cellId.slice(5, cellId.length));
-    // Get animal behind the cell / tile
-    let currAnimal = game.tileGrid.animals[tileNum];
     // Add actions only if tile has class unflipped-cell
     if (
       $(`#cell-${tileNum}`).hasClass("unflipped-cell") &&
       game.tileGrid.allowClick
     ) {
+      // Get animal behind the cell / tile
+      let currAnimal = game.tileGrid.animals[tileNum];
       // if joker, score -1 and remove joker
       if (currAnimal === "joker") {
+        // Increment tiles Solved
+        game.tileGrid.tilesSolved++;
         // Flip tile
         game.tileGrid.FlipTile(tileNum, currAnimal);
         // Score Penalty
@@ -517,6 +651,11 @@ const game = {
           game.tileGrid.allowClick = true;
           // Switch player
           game.SwitchPlayer();
+          // If game is timed Clear timer and restart it
+          if (game.isTimed) {
+            window.clearInterval(game.timerId);
+            game.StartTimer(game.timePerTurn);
+          }
         }, 700);
       } else if (game.tileGrid.numTilesFlipped === 0) {
         // Flip this tile
@@ -531,6 +670,8 @@ const game = {
         if (currAnimal === game.tileGrid.prevFlippedAnimal) {
           // Score Points and update score DOM
           game.ScorePoints();
+          // Update num of solved tiles
+          game.tileGrid.tilesSolved+=2;
           // Disallow click till delay expires
           game.tileGrid.allowClick = false;
           // Hide both tiles after a delay of 1 second
@@ -545,6 +686,11 @@ const game = {
             game.tileGrid.allowClick = true;
             // Switch player
             game.SwitchPlayer();
+            // If game is timed Clear timer and restart it
+            if (game.isTimed) {
+              window.clearInterval(game.timerId);
+              game.StartTimer(game.timePerTurn);
+            }
           }, 700);
         } else {
           // Disallow click till delay expires
@@ -561,8 +707,17 @@ const game = {
             game.tileGrid.allowClick = true;
             //Switch player
             game.SwitchPlayer();
+            // If game is timed Clear timer and restart it
+            if (game.isTimed) {
+              window.clearInterval(game.timerId);
+              game.StartTimer(game.timePerTurn);
+            }
           }, 700);
         }
+      }
+      // If all tiles have been solved, end game
+      if (game.tileGrid.tilesSolved === game.tileGrid.numTiles) {
+        game.EndGame();
       }
     }
   },
@@ -573,18 +728,52 @@ const game = {
   },
 
   JokerPenalty: function () {
-    if(game.difficulty==="Easy"){
+    if (game.difficulty === "Easy") {
       game.activePlayer.score--;
-    }
-    else if(game.difficulty==="Medium"){
-      game.activePlayer.score=game.activePlayer.score-2;
-    }
-    else{
-      game.activePlayer.score=game.activePlayer.score-3;
+    } else if (game.difficulty === "Medium") {
+      game.activePlayer.score = game.activePlayer.score - 2;
+    } else {
+      game.activePlayer.score = game.activePlayer.score - 3;
     }
     game.activePlayer.UpdatePlayerDOM();
   },
 
+  StartTimer: function (totTime) {
+    game.timeRemaining = totTime;
+    game.timerId = window.setInterval(() => {
+      let seconds = Math.floor(game.timeRemaining / 1000);
+      let deciSeconds = Math.floor((game.timeRemaining - seconds * 1000) / 100);
+      game.domClock.text(`${seconds}.${deciSeconds}`);
+      game.timeRemaining = game.timeRemaining - 100;
+      if (game.timeRemaining <= 2000) {
+        game.domClock.css({ color: "red", "font-weight": "bold" });
+      } else {
+        game.domClock.css({ color: "green", "font-weight": "normal" });
+      }
+      // If time per turn expires
+      if (game.timeRemaining == 0) {
+        window.clearInterval(game.timerId);
+        game.StartTimer(game.timePerTurn);
+        // if the there is an unflipped tile, flip it
+        if (game.tileGrid.numTilesFlipped === 1) {
+          game.tileGrid.UnflipTile(game.tileGrid.prevFlippedTileNum);
+          // Reset prev tile properties
+          game.tileGrid.numTilesFlipped = 0;
+          game.tileGrid.prevFlippedTileNum = null;
+          game.tileGrid.prevFlippedAnimal = null;
+        }
+        // Switch player
+        game.SwitchPlayer();
+      }
+    }, 100);
+  },
+  PauseTimer: function () {
+    window.clearInterval(game.timerId);
+    game.domClock.text("--");
+  },
+  ResumeTimer: function () {
+    game.StartTimer(game.timeRemaining);
+  },
   CreateNameForm: function (num) {
     // Create a form element and set its ID
     const form = document.createElement("form");
@@ -620,7 +809,7 @@ const game = {
     submitButton.setAttribute("type", "button");
     submitButton.setAttribute(
       "class",
-      "btn btn-warning btn-lg box-shadow--10d"
+      "btn btn-warning btn-lg box-shadow--10d continue-btns"
     );
     submitButton.setAttribute("id", `${formID}-submit`);
     submitButton.innerText = "c o n t i n u e !";

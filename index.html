@@ -26,8 +26,13 @@
 
   <body>
     <header id="body-header">
-      <h1 id="game-title">snapimals</h1>
-      <h3 id="game-slogan">A Memory Safari</h3>
+      <section id = "game-settings">
+        <section id = "timer" class = "timer-hidden"></section>
+      </section>
+      <section id = "title-slogan">
+        <h1 id="game-title">snapimals</h1>
+        <h3 id="game-slogan">A Memory Safari</h3>
+      </section>
     </header>
     <main id="game-play">
       <section id="splash-screen" class="active-screen">
@@ -61,7 +66,26 @@
         </h3>
         <p id="setup-prompt" class="in-game-text"></p>
       </section>
-      <section id="game-board" class="dormant-screen">
+      <section id="game-screen" class="dormant-screen">
+        <section id="score-board">
+          <div id="player-1" class="player-section">
+            <div class="name">Player 1 Name</div>
+            <div class="score">0</div>
+          </div>
+          <div id="player-2" class="player-section">
+            <div class="name"></div>
+            <div class="score"></div>
+          </div>
+          <div id="player-3" class="player-section">
+            <div class="name"></div>
+            <div class="score"></div>
+          </div>
+          <div id="player-4" class="player-section">
+            <div class="name"></div>
+            <div class="score"></div>
+          </div>
+        </section>        
+        <section id="game-board"></section>
       </section>
     </main>
     <footer id="body-footer">

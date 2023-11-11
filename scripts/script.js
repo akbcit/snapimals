@@ -3,9 +3,15 @@
 // Creating player class
 
 class Player {
-  constructor(playerName) {
+  constructor(playerName, $nameSection, $scoreSection) {
     this.name = playerName;
     this.score = 0;
+    this.$nameDOM = $nameSection;
+    this.$scoreDOM = $scoreSection;
+  }
+  UpdatePlayerDOM() {
+    this.$nameDOM.text(this.name);
+    this.$scoreDOM.text(this.score);
   }
 }
 // Animal images object
@@ -57,7 +63,7 @@ const animalImages = {
     const allPropertyNames = Object.keys(animalImages);
     // Remove Functions from the above array to store all animalNames
     const allAnimalNames = allPropertyNames.filter((propertyName) => {
-      return typeof animalImages[propertyName] !== 'function';
+      return typeof animalImages[propertyName] !== "function";
     });
     // Shuffle this array
     this.ShuffleAllAnimalNames(allAnimalNames);
@@ -79,9 +85,10 @@ const animalImages = {
 };
 // Creating tile grid class
 class TileGrid {
-  constructor(size) {
+  constructor(size, difficulty) {
     this.rows = size;
     this.columns = size;
+    this.difficulty = difficulty;
     this.gridID = "tile-grid";
     this.$grid = $(document.createElement("table")).attr("id", this.gridID);
     this.animals = {};
@@ -92,7 +99,7 @@ class TileGrid {
   }
   AddGrid(screen) {
     let cellNum = 1;
-    // variable to adjust cell diemnsions based on grid size
+    // variable to adjust cell dimensions based on grid size
     let dim = this.GetCellDim();
     for (let i = 1; i <= this.rows; i++) {
       // Create row i
@@ -118,7 +125,7 @@ class TileGrid {
     $(`#${screen}`).remove(`#${this.gridID}`);
   }
   AddAnimals() {
-    // Declare and object to store the index (1-indexed) of cell /
+    // Declare an object to store the index (1-indexed) of cell /
     // tile and store animal name in flipped state
     let flippedAnimals = {};
     // If numTiles odd then we need a joker tile
@@ -127,7 +134,7 @@ class TileGrid {
     let numTiles = this.rows * this.columns;
     // Check if number of tiles is even or odd
     let isOdd = numTiles % 2 == 1 ? true : false;
-    // Calculate num animals- one tile will be joker's if numTiles is odd
+    // Calculate num animals; one tile will be joker's if numTiles is odd
     let numAnimals = isOdd ? (numTiles - 1) / 2 : numTiles / 2;
     //Get list of random animals
     let animals = animalImages.GetRandAnimals(numAnimals);
@@ -151,7 +158,58 @@ class TileGrid {
       this.animals[indices[2 * i]] = animals[i];
       this.animals[indices[2 * i + 1]] = animals[i];
     }
+    // Repeat Pairs based on difficulty level
+    if(this.difficulty=="Easy"){
+      this.RepeatPairs(Math.floor(this.rows/2)+1);
+      }
+    else if(this.difficulty=="Medium"){
+      this.RepeatPairs(Math.floor(this.rows/2));
+    }
   }
+  // Function that repeats animals based on the difficulty of game
+  RepeatPairs(repeatPairs) {
+    console.log(repeatPairs);
+    // Get all paired indices
+    let pairs = this.IdentifyPairs();
+    for (let i = 0; i < repeatPairs; i++) {
+      // Store all animals in an array
+      const animalsArr = Object.keys(pairs);
+      // Select a random animal from pairs
+      let firstRandAnimal = animalsArr[Math.floor(Math.random()*animalsArr.length)];
+      // Select another random animal from pairs
+      let secondRandAnimal = animalsArr[Math.floor(Math.random()*animalsArr.length)];
+      // Ensure they aren't the same
+      while (firstRandAnimal === secondRandAnimal) {
+        secondRandAnimal = animalsArr[Math.floor(Math.random()*animalsArr.length)];
+      }
+      // Set indices of second animal's pair to first animal in the this.animals object
+      this.animals[pairs[secondRandAnimal][0]]=firstRandAnimal;
+      this.animals[pairs[secondRandAnimal][1]]=firstRandAnimal;
+      // Remove both animals from pairs
+      delete pairs[firstRandAnimal];
+      delete pairs[secondRandAnimal];
+    }
+  }
+  // Get all paired indices
+  IdentifyPairs() {
+    const pairs = {}
+    for (let index in this.animals) {
+      let animal = this.animals[index];
+      // Skip joker
+      if (animal === "joker") {
+        continue;
+      }
+
+      if (pairs[animal] === undefined) {
+        pairs[animal] = [index];
+      }
+      else {
+        pairs[animal].push(index);
+      }
+    }
+    return pairs;
+  }
+  // Function to flip tile
   FlipTile(tileNum, animal) {
     let imgUrl =
       animal === "joker" ? "../images/joker.jpg" : animalImages[animal];
@@ -163,7 +221,8 @@ class TileGrid {
   UnflipTile(tileNum) {
     $(`#cell-${tileNum}`)
       .removeClass("flipped-cell")
-      .addClass("unflipped-cell").css({ "background-image":"url(../images/UnflippedTileBg.png)"});
+      .addClass("unflipped-cell")
+      .css({ "background-image": "url(../images/UnflippedTileBg.png)" });
   }
   HideTile(tileNum) {
     $(`#cell-${tileNum}`)
@@ -176,7 +235,7 @@ class TileGrid {
   GetCellDim() {
     // Object to store size to dim mapping
     const sizeToDimMap = {
-      3: "15rem",
+      3: "14.5rem",
       4: "11rem",
       5: "8.5rem",
       6: "7rem",
@@ -229,7 +288,7 @@ const game = {
     if (this.activeScreen == "setup-screen-4") {
       this.SetupGame();
     }
-    if (this.activeScreen == "game-board") {
+    if (this.activeScreen == "game-screen") {
       this.SetupGameBoard();
     }
   },
@@ -366,21 +425,64 @@ const game = {
             : true;
         game.difficulty = $("#difficulty-selection").find(":selected").text();
         // Move to game board
-        game.SwitchScreen("game-board");
+        game.SwitchScreen("game-screen");
+        // Make Player-1 as active
+        game.activePlayer = game.players[0];
+        game.HighlightActivePlayer();
       });
     });
   },
   AddPlayer: function (playerName) {
-    const newPlayer = new Player(playerName);
+    // Find number of players already added to game
+    const numPlayers = game.players.length;
+    // Get dom references to player's name and score sections
+    const $nameSection = $(`#player-${numPlayers + 1} .name`);
+    const $scoreSection = $(`#player-${numPlayers + 1} .score`);
+    // Instantiate a player object
+    const newPlayer = new Player(playerName, $nameSection, $scoreSection);
     game.players.push(newPlayer);
   },
-  SwitchPlayer: function () { },
+  SwitchPlayer: function () {
+    let indexActivePlayer = game.players.indexOf(game.activePlayer);
+    let indexNextPlayer =
+      indexActivePlayer === game.players.length - 1 ? 0 : indexActivePlayer + 1;
+    game.activePlayer = game.players[indexNextPlayer];
+    game.HighlightActivePlayer();
+  },
+
+  HighlightActivePlayer: function () {
+    // Highlight active player
+    game.activePlayer.$nameDOM.css({ color: "beige", "font-weight": "bold" });
+    game.activePlayer.$scoreDOM.css({ color: "beige", "font-weight": "bold" });
+    // Mute other players
+    for (let i = 0; i < game.players.length; i++) {
+      if (game.players[i] === game.activePlayer) {
+        continue;
+      } else {
+        game.players[i].$nameDOM.css({
+          color: "#6d6875",
+          "font-weight": "normal",
+        });
+        game.players[i].$scoreDOM.css({
+          color: "#6d6875",
+          "font-weight": "normal",
+        });
+      }
+    }
+  },
+
   SetupGameBoard: function () {
-    game.tileGrid = new TileGrid(game.gridSize);
-    game.tileGrid.AddGrid(this.activeScreen);
+    // Add players
+    for (let player of game.players) {
+      player.UpdatePlayerDOM();
+    }
+    // Add a tile grid
+    game.tileGrid = new TileGrid(game.gridSize, game.difficulty);
+    game.tileGrid.AddGrid("game-board");
     // Add event listener to tiles
     $(".cell").on("click", game.TileClickHandler);
   },
+
   TileClickHandler: (event) => {
     // Get the cell id
     let cellId = event.target.id;
@@ -389,8 +491,34 @@ const game = {
     // Get animal behind the cell / tile
     let currAnimal = game.tileGrid.animals[tileNum];
     // Add actions only if tile has class unflipped-cell
-    if($(`#cell-${tileNum}`).hasClass("unflipped-cell")&&game.tileGrid.allowClick){
-      if (game.tileGrid.numTilesFlipped === 0) {
+    if (
+      $(`#cell-${tileNum}`).hasClass("unflipped-cell") &&
+      game.tileGrid.allowClick
+    ) {
+      // if joker, score -1 and remove joker
+      if (currAnimal === "joker") {
+        // Flip tile
+        game.tileGrid.FlipTile(tileNum, currAnimal);
+        // Score Penalty
+        game.JokerPenalty();
+        // Disallow click till delay expires
+        game.tileGrid.allowClick = false;
+        // Hide and make further changes after a delay
+        window.setTimeout(() => {
+          game.tileGrid.HideTile(tileNum);
+          // Unflip tile if any tile is flipped
+          if (game.tileGrid.numTilesFlipped === 1) {
+            game.tileGrid.UnflipTile(game.tileGrid.prevFlippedTileNum);
+            game.tileGrid.numTilesFlipped = 0;
+            game.tileGrid.prevFlippedTileNum = null;
+            game.tileGrid.prevFlippedAnimal = null;
+          }
+          // Now allow click
+          game.tileGrid.allowClick = true;
+          // Switch player
+          game.SwitchPlayer();
+        }, 700);
+      } else if (game.tileGrid.numTilesFlipped === 0) {
         // Flip this tile
         game.tileGrid.FlipTile(tileNum, currAnimal);
         game.tileGrid.numTilesFlipped = 1;
@@ -401,6 +529,8 @@ const game = {
         game.tileGrid.FlipTile(tileNum, currAnimal);
         // Compare currAnimal to previously flipped animal
         if (currAnimal === game.tileGrid.prevFlippedAnimal) {
+          // Score Points and update score DOM
+          game.ScorePoints();
           // Disallow click till delay expires
           game.tileGrid.allowClick = false;
           // Hide both tiles after a delay of 1 second
@@ -412,25 +542,49 @@ const game = {
             game.tileGrid.prevFlippedTileNum = null;
             game.tileGrid.prevFlippedAnimal = null;
             // Now allow click
-            game.tileGrid.allowClick=true;
-          }, 1000);
+            game.tileGrid.allowClick = true;
+            // Switch player
+            game.SwitchPlayer();
+          }, 700);
         } else {
           // Disallow click till delay expires
           game.tileGrid.allowClick = false;
           //flip both tiles after a delay of a second
           window.setTimeout(() => {
             game.tileGrid.UnflipTile(tileNum);
-            game.tileGrid.UnflipTile(game.tileGrid.prevFlippedTileNum),
+            game.tileGrid.UnflipTile(game.tileGrid.prevFlippedTileNum);
             // Reset prev tile properties
             game.tileGrid.numTilesFlipped = 0;
             game.tileGrid.prevFlippedTileNum = null;
             game.tileGrid.prevFlippedAnimal = null;
-            game.tileGrid.allowClick=true;
-          }, 1000);
+            // Now allow click
+            game.tileGrid.allowClick = true;
+            //Switch player
+            game.SwitchPlayer();
+          }, 700);
         }
       }
     }
   },
+
+  ScorePoints: function () {
+    game.activePlayer.score++;
+    game.activePlayer.UpdatePlayerDOM();
+  },
+
+  JokerPenalty: function () {
+    if(game.difficulty==="Easy"){
+      game.activePlayer.score--;
+    }
+    else if(game.difficulty==="Medium"){
+      game.activePlayer.score=game.activePlayer.score-2;
+    }
+    else{
+      game.activePlayer.score=game.activePlayer.score-3;
+    }
+    game.activePlayer.UpdatePlayerDOM();
+  },
+
   CreateNameForm: function (num) {
     // Create a form element and set its ID
     const form = document.createElement("form");

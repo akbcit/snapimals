@@ -28,18 +28,26 @@ body {
 #body-header {
   grid-row-start: 1;
   grid-row-end: 2;
-  font-family: "Bubblegum Sans", sans-serif;
-  background: #fbba00;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
   width: 100%;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   align-items: center;
+  justify-content: center;
   gap: 0rem;
   text-shadow: 1px 1px 2px #fbba00, 0 0 2rem rgb(0, 0, 0),
     0 0 0.2em rgb(0, 0, 0);
   background: rgba(0, 0, 0, 0.3);
+}
+
+#title-slogan {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  font-family: "Bubblegum Sans", sans-serif;
+  background: #fbba00;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
 #game-title {
@@ -58,9 +66,9 @@ body {
 #body-footer {
   grid-row-start: 3;
   grid-row-end: 4;
-  background: rgba(0, 0, 0, 0.3);
   display: flex;
   align-items: center;
+  background: rgba(0, 0, 0, 0.3);
 }
 
 #body-footer p {
@@ -123,7 +131,7 @@ button {
 
 #skip-btn:active {
   /* Scale down on hover */
-  transform: scale(0.95); 
+  transform: scale(0.95);
 }
 
 input {
@@ -164,7 +172,38 @@ form {
     0 0 0.2em rgb(0, 0, 0);
 }
 
-/* Game-board styling */
+/* Game-screen styling */
+
+#game-screen {
+  flex-direction: row;
+  width: 100%;
+}
+
+#score-board {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+}
+
+.player-section {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background-color: #ffd700;
+  border-radius: 10%;
+  width: 3rem;
+  margin-top: 12px;
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4); 
+}
+
+.name,
+.score {
+  color: #6d6875;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+}
+
 #tile-grid {
   border-collapse: separate;
   border-spacing: 0.5rem;
@@ -173,42 +212,42 @@ form {
 }
 
 .cell {
-  
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
   border-radius: 7%;
   transition: background-position 0.3s, transform 0.3s, box-shadow 0.3s;
-  
 }
 
-.unflipped-cell{
-    background-image: url("../images/UnflippedTileBg.png");
+.unflipped-cell {
+  background-image: url("../images/UnflippedTileBg.png");
 }
 
-.flipped-cell{
-  border: 4px solid #FFD700;
+.flipped-cell {
+  border: 4px solid #ffd700;
 }
 
-.cell:hover{
-    box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4); /* Add a box shadow to the cell */
+.cell:hover {
+  box-shadow: 3px 3px 6px rgba(0, 0, 0, 0.4); 
 }
 .cell:active {
   background-position: center 0;
   transform: scale(0.95);
 }
 
-.hidden-cell{
+.hidden-cell {
   background-image: none;
 }
 
-.hidden-cell:hover{
-  box-shadow:none
+.hidden-cell:hover {
+  box-shadow: none;
 }
 
-.hidden-cell:active{
+.hidden-cell:active {
   transform: none;
 }
+
+
 
 @media (max-width: 1200px) {
   .in-game-text {

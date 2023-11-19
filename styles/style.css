@@ -81,6 +81,23 @@ body {
   padding: 0;
 }
 
+#sound-btn{
+  position: absolute;
+  top: 11%;
+  left:17%;
+  height: 2.5rem;
+  width: 2.5rem;
+  border-radius: 100%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.5); 
+  background-color: #ffc100;
+  color: black;
+  border-color: none;
+}
+
+#sound-btn:active{
+  /* Scale down on hover */
+  transform: scale(0.95);
+}
 /* game-play (main) styling */
 
 #game-play {

@@ -261,8 +261,8 @@ const game = {
   isRunning: false,
   numPlayers: 1,
   players: [],
-  activePlayer: 0,
-  winnerPlayer:null,
+  activePlayer: null,
+  winnerPlayer: null,
   gridSize: null,
   isTimed: null,
   difficulty: null,
@@ -271,10 +271,19 @@ const game = {
   timerId: null,
   tileGrid: null,
   typeWriterInterval: 50,
+  audioContext: null,
+  gainNode: null,
+  gameSounds: {
+    theme: { path: "../audio/safari.mp3", source: null },
+    flip: { path: "../audio/flip.wav", source: null },
+    solve: { path: "../audio/solve.mp3", source: null },
+    joker: { path: "../audio/joker.mp3", source: null },
+  },
   domPlaybtn: $("#play-btn"),
   domPausebtn: $("#pause-btn"),
   domStopbtn: $("#stop-btn"),
   domClock: $("#clock"),
+  domSoundbtn: $("#sound-btn"),
   domPauseOverLay: $("#pause-overlay"),
   SwitchScreen: function (newScreen) {
     $(`#${newScreen}`)
@@ -300,11 +309,10 @@ const game = {
     if (this.activeScreen == "game-screen") {
       this.SetupGameBoard();
     }
-    if(this.activeScreen== "game-over-screen"){
-
+    if (this.activeScreen == "game-over-screen") {
     }
   },
-  ToggleRunning: function () {},
+  ToggleRunning: function () { },
   Init: function () {
     const introText = `Welcome, Explorer! Embark on a memory safari to match captivating creatures in this uncharted wilderness. Get ready, the adventure starts now!`;
     // Add event listener to skip-btn to skip-text
@@ -318,6 +326,8 @@ const game = {
       // Add event listener to continue-btn to move to next screen
       $("#continue-btn").on("click", () => game.SwitchScreen("setup-screen-1"));
     });
+    // Add audio context and event handler to sound-btn
+    game.ManageSound();
   },
   SetupPlayer1: function () {
     const namePrompt = `Hello Explorer!
@@ -378,12 +388,10 @@ const game = {
     // Create prompt based on number of players
     const namesPrompt =
       game.numPlayers === 2
-        ? `Good ${game.CurrTime()} ${
-            game.players[0].name
-          } and the other explorer! May I know your name?`
-        : `Good ${game.CurrTime()} ${
-            game.players[0].name
-          } and the other explorers! May I know your names?`;
+        ? `Good ${game.CurrTime()} ${game.players[0].name
+        } and the other explorer! May I know your name?`
+        : `Good ${game.CurrTime()} ${game.players[0].name
+        } and the other explorers! May I know your names?`;
     // Add event listener to skip-btn to skip-text
     game.ActivateSkip();
     // Invoke the typewriter effect function to Read prompt and display name forms
@@ -497,11 +505,12 @@ const game = {
   },
 
   SetupGameBoard: function () {
+    //Stop theme song
+    game.StopSound("theme");
     // Add players to DOM
     for (let player of game.players) {
       player.UpdatePlayerDOM();
     }
-
     // Add a tile grid
     game.tileGrid = new TileGrid(game.gridSize, game.difficulty);
     game.tileGrid.AddGrid("game-board");
@@ -581,38 +590,35 @@ const game = {
       let topScore = -4;
       let topScorerNames = [];
       // Check top score
-      for(let i = 0;i<game.players.length;i++){
+      for (let i = 0; i < game.players.length; i++) {
         const player = game.players[i];
         const score = player.score;
-        if(score>topScore){
-          topScore=score;
+        if (score > topScore) {
+          topScore = score;
         }
       }
 
       // Check how many players have topScore
-      for(let i = 0;i<game.players.length;i++){
+      for (let i = 0; i < game.players.length; i++) {
         const player = game.players[i];
         const score = player.score;
-        if(score===topScore){
+        if (score === topScore) {
           topScorerNames.push(player.name);
           console.log(topScorerNames);
         }
       }
       // Display winner(s)
       let winnerText = null;
-      if(topScorerNames.length===1){
-        winnerText = `And the winner is ${topScorerNames[0]}!!!`
-      }
-      else if(topScorerNames.length===2){
+      if (topScorerNames.length === 1) {
+        winnerText = `And the winner is ${topScorerNames[0]}!!!`;
+      } else if (topScorerNames.length === 2) {
         winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} !!!`;
-      }
-      else if(topScorerNames.length===3){
+      } else if (topScorerNames.length === 3) {
         winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]}!!!`;
-      }
-      else{
+      } else {
         winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]} & ${topScorerNames[3]}!!!`;
       }
-      game.TypeWriter(winnerText,"winner-text",0);
+      game.TypeWriter(winnerText, "winner-text", 0);
     }
   },
   TileClickHandler: (event) => {
@@ -629,6 +635,8 @@ const game = {
       let currAnimal = game.tileGrid.animals[tileNum];
       // if joker, score -1 and remove joker
       if (currAnimal === "joker") {
+        // Play sound
+        game.PlaySound("joker");
         // Increment tiles Solved
         game.tileGrid.tilesSolved++;
         // Flip tile
@@ -658,6 +666,8 @@ const game = {
           }
         }, 700);
       } else if (game.tileGrid.numTilesFlipped === 0) {
+        // Play sound
+        game.PlaySound("flip");
         // Flip this tile
         game.tileGrid.FlipTile(tileNum, currAnimal);
         game.tileGrid.numTilesFlipped = 1;
@@ -668,10 +678,12 @@ const game = {
         game.tileGrid.FlipTile(tileNum, currAnimal);
         // Compare currAnimal to previously flipped animal
         if (currAnimal === game.tileGrid.prevFlippedAnimal) {
+          // Play sound
+          game.PlaySound("solve");
           // Score Points and update score DOM
           game.ScorePoints();
           // Update num of solved tiles
-          game.tileGrid.tilesSolved+=2;
+          game.tileGrid.tilesSolved += 2;
           // Disallow click till delay expires
           game.tileGrid.allowClick = false;
           // Hide both tiles after a delay of 1 second
@@ -693,6 +705,8 @@ const game = {
             }
           }, 700);
         } else {
+          // Play sound
+          game.PlaySound("flip");
           // Disallow click till delay expires
           game.tileGrid.allowClick = false;
           //flip both tiles after a delay of a second
@@ -883,9 +897,80 @@ const game = {
       return "evening";
     }
   },
+  // Function to manage in-game sound
+  ManageSound: function () {
+    // Create an AudioContext only if not already created
+    if (!game.audioContext) {
+      game.audioContext = new (window.AudioContext || window.AudioContext)();
+      // Create a gain node
+      game.gainNode = game.audioContext.createGain();
+      // Connect the gain node to the AudioContext destination (speakers)
+      game.gainNode.connect(game.audioContext.destination);
+    }
+    // Add event listener to sound-btn
+    game.domSoundbtn.on("click", game.ToggleMute);
+  },
+  // Function to toggle mute status
+  ToggleMute: function () {
+    if (game.gainNode.gain.value === 0) {
+      // If muted, unmute and change sound-btn text
+      game.gainNode.gain.setValueAtTime(1, game.audioContext.currentTime);
+      game.domSoundbtn.html(`<i class="bi bi-volume-mute-fill"></i>`);
+      console.log("muted");
+    } else {
+      // If unmuted, mute and change sound-btn text
+      game.gainNode.gain.setValueAtTime(0, game.audioContext.currentTime);
+      game.domSoundbtn.html(`<i class="bi bi-volume-up-fill"></i>`);
+      console.log("unmuted");
+    }
+  },
+  // Function to play a specific sound
+  PlaySound: function (sound) {
+    // get filePath
+    const soundFilePath = game.gameSounds[sound].path;
+    console.log(soundFilePath);
+    // Create an AudioBufferSourceNode
+    const source = game.audioContext.createBufferSource();
+    // Add this to source property of gameSound object
+    game.gameSounds[sound].source = source;
+    // Fetch and decode the audio file
+    fetch(soundFilePath)
+      .then((response) => response.arrayBuffer())
+      .then((buffer) => game.audioContext.decodeAudioData(buffer))
+      .then((decodedData) => {
+        // Set the buffer for the source
+        source.buffer = decodedData;
+        // Connect the source to the gain node
+        source.connect(game.gainNode);
+        // Start playing the sound
+        source.start();
+      })
+      .catch((error) =>
+        console.error("Error loading and playing sound:", error)
+      );
+  },
+  StopSound: function (sound) {
+    game.gameSounds[sound].source.stop();
+  },
 };
 
-// Event listener for DOM content loading
 $(() => {
+  // Enter the game
   game.Init();
+  // Initialize AudioContext in response to a user action
+  $(document).on("click", () => {
+    if (game.audioContext.state === "suspended") {
+      console.log("hi");
+      game.audioContext
+        .resume()
+        .then(() => {
+          console.log("AudioContext resumed successfully.");
+          // Now play sound
+          game.PlaySound("theme");
+        })
+        .catch((error) => {
+          console.error("Error resuming AudioContext:", error);
+        });
+    }
+  });
 });

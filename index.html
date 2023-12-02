@@ -1,69 +1,76 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Snapimals</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Bungee+Spice&family=Caveat+Brush&family=Cherry+Bomb+One&family=Flavors&family=Freckle+Face&family=Gochi+Hand&family=Henny+Penny&family=Irish+Grover&family=Kablammo&family=Knewave&family=Lato&family=Nanum+Pen+Script&family=Roboto:wght@500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+      integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN"
+      crossorigin="anonymous"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css"
+    />
+    <link rel="stylesheet" href="./styles/style.css" />
+    <link rel="shortcut icon" href="#" />
+  </head>
 
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Snapimals</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link
-    href="https://fonts.googleapis.com/css2?family=Bubblegum+Sans&family=Bungee+Spice&family=Caveat+Brush&family=Cherry+Bomb+One&family=Flavors&family=Freckle+Face&family=Gochi+Hand&family=Henny+Penny&family=Irish+Grover&family=Kablammo&family=Knewave&family=Lato&family=Nanum+Pen+Script&family=Roboto:wght@500&display=swap"
-    rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
-    integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.5.0/font/bootstrap-icons.css" />
-  <link rel="stylesheet" href="./styles/style.css" />
-  <link rel="shortcut icon" href="#" />
-</head>
-
-<body>
-  <header id="body-header">
-    <section id="game-settings">
-      <section id="timer" class="timer-hidden"></section>
-    </section>
-    <section id="title-slogan">
-      <h1 id="game-title">snapimals</h1>
-      <h3 id="game-slogan">A Memory Safari</h3>
-    </section>
-  </header>
-  <button id = "sound-btn" class="btn btn-dark" title="Mute Sound"><i class="bi bi-volume-mute-fill"></i></button>
-  <main id="game-play">
-    <section id="splash-screen" class="active-screen">
-      <h3 id="skip-btn" title="Skip Story">
-        skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
-      </h3>
-      <p id="intro-para" class="in-game-text"></p>
-    </section>
-    <section id="setup-screen-1" class="dormant-screen">
-      <h3 id="skip-btn">
-        skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
-      </h3>
-      <p id="name-prompt" class="in-game-text"></p>
-    </section>
-    <section id="setup-screen-2" class="dormant-screen">
-      <h3 id="skip-btn">
-        skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
-      </h3>
-      <p id="num-players-prompt" class="in-game-text"></p>
-      <section id="num-players-options"></section>
-    </section>
-    <section id="setup-screen-3" class="dormant-screen">
-      <h3 id="skip-btn">
-        skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
-      </h3>
-      <p id="player-names-prompt" class="in-game-text"></p>
-    </section>
-    <section id="setup-screen-4" class="dormant-screen">
-      <h3 id="skip-btn">
-        skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
-      </h3>
-      <p id="setup-prompt" class="in-game-text"></p>
-    </section>
-    <section id="game-screen" class="dormant-screen">
-      <section id="score-board">
-        <div id="clock">--</div>
-        <div id="player-sections">
+  <body>
+    <header id="body-header">
+      <section id="game-settings">
+        <section id="timer" class="timer-hidden"></section>
+      </section>
+      <section id="title-slogan">
+        <h1 id="game-title">snapimals</h1>
+        <h3 id="game-slogan">A Memory Safari</h3>
+      </section>
+    </header>
+    <button id="sound-btn" class="btn btn-dark" title="Mute Sound">
+      <i class="bi bi-volume-mute-fill"></i>
+    </button>
+    <main id="game-play">
+      <section id="splash-screen" class="active-screen">
+        <h3 id="skip-btn" title="Skip Story">
+          skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
+        </h3>
+        <p id="intro-para" class="in-game-text"></p>
+      </section>
+      <section id="setup-screen-1" class="dormant-screen">
+        <h3 id="skip-btn">
+          skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
+        </h3>
+        <p id="name-prompt" class="in-game-text"></p>
+      </section>
+      <section id="setup-screen-2" class="dormant-screen">
+        <h3 id="skip-btn">
+          skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
+        </h3>
+        <p id="num-players-prompt" class="in-game-text"></p>
+        <section id="num-players-options"></section>
+      </section>
+      <section id="setup-screen-3" class="dormant-screen">
+        <h3 id="skip-btn">
+          skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
+        </h3>
+        <p id="player-names-prompt" class="in-game-text"></p>
+      </section>
+      <section id="setup-screen-4" class="dormant-screen">
+        <h3 id="skip-btn">
+          skip&nbsp<i class="bi bi-skip-forward-btn-fill align-middle"></i>
+        </h3>
+        <p id="setup-prompt" class="in-game-text"></p>
+      </section>
+      <section id="game-screen" class="dormant-screen">
+        <div id="score-board">
           <div id="player-1" class="player-section">
             <div class="name">Player 1 Name</div>
             <div class="score"></div>
@@ -81,6 +88,8 @@
             <div class="score"></div>
           </div>
         </div>
+
+        <div id="clock">--</div>
         <div id="btn-area">
           <button type="button" class="btn btn-success" id="play-btn">
             <i class="bi bi-play-circle" id="icon"></i>
@@ -92,26 +101,29 @@
             <i class="bi bi-stop-fill" id="icon"></i>
           </button>
         </div>
+        <section id="game-board"></section>
+        <section id="pause-overlay">
+          <p class="in-game-text">Game Paused!</p>
+        </section>
       </section>
-      <section id="game-board"></section>
-      <section id="pause-overlay">
-        <p class="in-game-text">Game Paused!</p>
+      <section id="game-over-screen" class="dormant-screen">
+        <p class="in-game-text">GAME OVER!</p>
+        <p class="in-game-text" id="winner-text"></p>
+        <button id="restart-game-btn" class="btn btn-warning btn-lg box-shadow--10d continue-btns">Play again!</button>
+        <button id="end-game-btn" class="btn btn-warning btn-lg box-shadow--10d continue-btns">End Game!</button>
       </section>
-    </section>
-    <section id="game-over-screen" class="dormant-screen">
-      <p class="in-game-text">GAME OVER!</p>
-      <p class="in-game-text" id = "winner-text"></p>
-    </section>
-  </main>
-  <footer id="body-footer">
-    <p>&copy Aditya 2023</p>
-  </footer>
-  <script src="https://code.jquery.com/jquery-3.7.1.js" integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
-    crossorigin="anonymous"></script>
-  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    </main>
+    <footer id="body-footer">
+      <p>&copy Aditya 2023</p>
+    </footer>
+    <script
+      src="https://code.jquery.com/jquery-3.7.1.js"
+      integrity="sha256-eKhayi8LEQwp4NKxN+CfCh+3qOVUtJn3QNZ0TciWLP4="
+      crossorigin="anonymous"
+    ></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 
-  <script src="./scripts/script.js"></script>
-</body>
-
+    <script src="./scripts/script.js"></script>
+  </body>
 </html>

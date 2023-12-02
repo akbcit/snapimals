@@ -509,12 +509,15 @@ const game = {
     game.StopSound("theme");
     // Add players to DOM
     for (let player of game.players) {
+      // ensure scores are zero (to take care of restart game situation)
+      player.score = 0;
       player.UpdatePlayerDOM();
     }
+    // Remove tile grid if it exists (to take care of restart game situation)
+    $("#tile-grid").remove();
     // Add a tile grid
     game.tileGrid = new TileGrid(game.gridSize, game.difficulty);
     game.tileGrid.AddGrid("game-board");
-
     // Add event listener to tiles
     $(".cell").on("click", game.TileClickHandler);
 
@@ -585,7 +588,27 @@ const game = {
     }
   },
   EndGame: function () {
+    // remove TileBoard from game-screen
+    $("#tile-grid").remove();
+    // Move over to game-screen
     game.SwitchScreen("game-over-screen");
+    game.PlaySound("theme");
+    // Add event listeners to start and end game btns
+    $("#restart-game-btn").on("click", () => {
+      // Move to game board
+      game.SwitchScreen("game-screen");
+      // Make Player-1 as active
+      game.activePlayer = game.players[0];
+      game.HighlightActivePlayer();
+      // If time game then Start Timer
+      if (game.isTimed) {
+        game.StartTimer(game.timePerTurn);
+      }
+    });
+    $("#end-game-btn").on("click", () => {
+      console.log("clicked");
+      location.reload();
+    });
     if (game.tileGrid.tilesSolved === game.tileGrid.numTiles) {
       let topScore = -4;
       let topScorerNames = [];
@@ -753,6 +776,8 @@ const game = {
   },
 
   StartTimer: function (totTime) {
+    // clear active timers if any
+    window.clearInterval(game.timerId);
     game.timeRemaining = totTime;
     game.timerId = window.setInterval(() => {
       let seconds = Math.floor(game.timeRemaining / 1000);
@@ -762,7 +787,7 @@ const game = {
       if (game.timeRemaining <= 2000) {
         game.domClock.css({ color: "red", "font-weight": "bold" });
       } else {
-        game.domClock.css({ color: "green", "font-weight": "normal" });
+        game.domClock.css({ color: "#001233", "font-weight": "normal" });
       }
       // If time per turn expires
       if (game.timeRemaining == 0) {
@@ -950,7 +975,11 @@ const game = {
       );
   },
   StopSound: function (sound) {
-    game.gameSounds[sound].source.stop();
+    try {
+      game.gameSounds[sound].source.stop();
+    } catch (e) {
+      console.log("Some error with sound!");
+    }
   },
 };
 

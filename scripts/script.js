@@ -312,7 +312,7 @@ const game = {
     if (this.activeScreen == "game-over-screen") {
     }
   },
-  ToggleRunning: function () { },
+  ToggleRunning: function () {},
   Init: function () {
     const introText = `Welcome, Explorer! Embark on a memory safari to match captivating creatures in this uncharted wilderness. Get ready, the adventure starts now!`;
     // Add event listener to skip-btn to skip-text
@@ -388,10 +388,12 @@ const game = {
     // Create prompt based on number of players
     const namesPrompt =
       game.numPlayers === 2
-        ? `Good ${game.CurrTime()} ${game.players[0].name
-        } and the other explorer! May I know your name?`
-        : `Good ${game.CurrTime()} ${game.players[0].name
-        } and the other explorers! May I know your names?`;
+        ? `Good ${game.CurrTime()} ${
+            game.players[0].name
+          } and the other explorer! May I know your name?`
+        : `Good ${game.CurrTime()} ${
+            game.players[0].name
+          } and the other explorers! May I know your names?`;
     // Add event listener to skip-btn to skip-text
     game.ActivateSkip();
     // Invoke the typewriter effect function to Read prompt and display name forms
@@ -590,6 +592,8 @@ const game = {
   EndGame: function () {
     // remove TileBoard from game-screen
     $("#tile-grid").remove();
+    // Empty text para element
+    $("#winner-text").text("");
     // Move over to game-screen
     game.SwitchScreen("game-over-screen");
     game.PlaySound("theme");
@@ -641,6 +645,7 @@ const game = {
       } else {
         winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]} & ${topScorerNames[3]}!!!`;
       }
+      // typewriter text for winner element
       game.TypeWriter(winnerText, "winner-text", 0);
     }
   },

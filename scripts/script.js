@@ -236,7 +236,7 @@ class TileGrid {
   GetCellDim() {
     // Object to store size to dim mapping
     const sizeToDimMap = {
-      3: "14.5rem",
+      3: "14rem",
       4: "11rem",
       5: "8.5rem",
       6: "7rem",
@@ -262,12 +262,13 @@ const game = {
   numPlayers: 1,
   players: [],
   activePlayer: null,
-  winnerPlayer: null,
   gridSize: null,
   isTimed: null,
   difficulty: null,
   timePerTurn: null,
   timeRemaining: null,
+  totalTime: null,
+  totalTries: null,
   timerId: null,
   tileGrid: null,
   typeWriterInterval: 50,
@@ -312,11 +313,13 @@ const game = {
     if (this.activeScreen == "game-over-screen") {
     }
   },
-  ToggleRunning: function () {},
+  ToggleRunning: function () { },
   Init: function () {
     const introText = `Welcome, Explorer! Embark on a memory safari to match captivating creatures in this uncharted wilderness. Get ready, the adventure starts now!`;
     // Add event listener to skip-btn to skip-text
     game.ActivateSkip();
+    // Add event listener to help-btn
+    game.ActivateHelp();
     // Invoke the typewriter effect function
     this.TypeWriter(introText, "intro-para", 0, () => {
       // Add a button to indicate that the player can move on to setup screen
@@ -334,6 +337,8 @@ const game = {
         What's your name!`;
     // Add event listener to skip-btn to skip-text
     game.ActivateSkip();
+    // Add event listener to help-btn
+    game.ActivateHelp();
     // Invoke the typewriter effect function
     this.TypeWriter(namePrompt, "name-prompt", 0, () => {
       // Add a form for player1 name
@@ -356,6 +361,8 @@ const game = {
         Are you alone or do you have other explorers with you?`;
     // Add event listener to skip-btn to skip-text
     game.ActivateSkip();
+    // Add event listener to help-btn
+    game.ActivateHelp();
     // Invoke the typewriter effect function
     this.TypeWriter(numPlayersPrompt, "num-players-prompt", 0, () => {
       // Add options for numplayers
@@ -388,14 +395,14 @@ const game = {
     // Create prompt based on number of players
     const namesPrompt =
       game.numPlayers === 2
-        ? `Good ${game.CurrTime()} ${
-            game.players[0].name
-          } and the other explorer! May I know your name?`
-        : `Good ${game.CurrTime()} ${
-            game.players[0].name
-          } and the other explorers! May I know your names?`;
+        ? `Good ${game.CurrTime()} ${game.players[0].name
+        } and the other explorer! May I know your name?`
+        : `Good ${game.CurrTime()} ${game.players[0].name
+        } and the other explorers! May I know your names?`;
     // Add event listener to skip-btn to skip-text
     game.ActivateSkip();
+    // Add event listener to help-btn
+    game.ActivateHelp();
     // Invoke the typewriter effect function to Read prompt and display name forms
     this.TypeWriter(namesPrompt, "player-names-prompt", 0, () => {
       // Create and display form
@@ -431,6 +438,8 @@ const game = {
         : `Welcome again Explorers! It's time to set your game up. Click on more info to help you decide.`;
     // Add event listener to skip-btn to skip-text
     game.ActivateSkip();
+    // Add event listener to help-btn
+    game.ActivateHelp();
     // Invoke the typewriter effect function to Read prompt and setup form
     game.TypeWriter(setupPrompt, "setup-prompt", 0, () => {
       const form = game.CreateSetupForm();
@@ -453,7 +462,7 @@ const game = {
         // Make Player-1 as active
         game.activePlayer = game.players[0];
         game.HighlightActivePlayer();
-        // If time game then Start Timer
+        // If timed game then Start Timer
         if (game.isTimed) {
           if (game.difficulty === "Easy") {
             game.timePerTurn = 10000;
@@ -507,6 +516,10 @@ const game = {
   },
 
   SetupGameBoard: function () {
+    // reset total tome
+    game.totalTime = 0; 
+    // reset total tries
+    game.totalTries = 0;
     //Stop theme song
     game.StopSound("theme");
     // Add players to DOM
@@ -594,6 +607,13 @@ const game = {
     $("#tile-grid").remove();
     // Empty text para element
     $("#winner-text").text("");
+    // reset time taken and store value in a new variable
+    const finalTime = game.totalTime/1000;
+    game.totalTime = 0;
+    //Pause Timer if game is timed
+    if (game.isTimed) {
+      game.PauseTimer();
+    }
     // Move over to game-screen
     game.SwitchScreen("game-over-screen");
     game.PlaySound("theme");
@@ -604,10 +624,6 @@ const game = {
       // Make Player-1 as active
       game.activePlayer = game.players[0];
       game.HighlightActivePlayer();
-      // If time game then Start Timer
-      if (game.isTimed) {
-        game.StartTimer(game.timePerTurn);
-      }
     });
     $("#end-game-btn").on("click", () => {
       console.log("clicked");
@@ -636,6 +652,14 @@ const game = {
       }
       // Display winner(s)
       let winnerText = null;
+      // If only one player
+      if(game.players.length===1){
+        const triesText = `Well done Adi! You finished the game in ${game.totalTries} tries`;
+        const timeText = (game.isTimed) ? ` and ${finalTime} seconds!`:"";
+        winnerText = triesText + timeText;
+      }
+      else{
+        // If more than one players
       if (topScorerNames.length === 1) {
         winnerText = `And the winner is ${topScorerNames[0]}!!!`;
       } else if (topScorerNames.length === 2) {
@@ -644,6 +668,7 @@ const game = {
         winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]}!!!`;
       } else {
         winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]} & ${topScorerNames[3]}!!!`;
+      }
       }
       // typewriter text for winner element
       game.TypeWriter(winnerText, "winner-text", 0);
@@ -659,6 +684,8 @@ const game = {
       $(`#cell-${tileNum}`).hasClass("unflipped-cell") &&
       game.tileGrid.allowClick
     ) {
+      // Increment Total Tries
+      game.totalTries++;
       // Get animal behind the cell / tile
       let currAnimal = game.tileGrid.animals[tileNum];
       // if joker, score -1 and remove joker
@@ -789,6 +816,7 @@ const game = {
       let deciSeconds = Math.floor((game.timeRemaining - seconds * 1000) / 100);
       game.domClock.text(`${seconds}.${deciSeconds}`);
       game.timeRemaining = game.timeRemaining - 100;
+      game.totalTime += 100;
       if (game.timeRemaining <= 2000) {
         game.domClock.css({ color: "red", "font-weight": "bold" });
       } else {
@@ -913,6 +941,13 @@ const game = {
     // Using Delegation since the screen does not exist when the function is called
     $("body").on("click", "#skip-btn", function () {
       game.typeWriterInterval = 0;
+    });
+  },
+  ActivateHelp: function () {
+    // Using Delegation since the screen does not exist when the function is called
+    $("body").on("click", "#help-btn", function () {
+      $("#help-modal").modal("show");
+      console.log("help!");
     });
   },
   // Function to get current time

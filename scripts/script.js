@@ -554,6 +554,11 @@ const game = {
     });
     // Set game-running to true
     game.isRunning = true;
+    // if game is timed start timer
+    if (game.isTimed) {
+      window.clearInterval(game.timerId);
+      game.StartTimer(game.timePerTurn);
+    }
   },
   ResumeGame() {
     if (!game.isRunning) {
@@ -614,19 +619,18 @@ const game = {
     if (game.isTimed) {
       game.PauseTimer();
     }
-    // Move over to game-screen
+    // Move over to game-over-screen
     game.SwitchScreen("game-over-screen");
     game.PlaySound("theme");
     // Add event listeners to start and end game btns
     $("#restart-game-btn").on("click", () => {
-      // Move to game board
-      game.SwitchScreen("game-screen");
       // Make Player-1 as active
       game.activePlayer = game.players[0];
       game.HighlightActivePlayer();
+      // Move to game board
+      game.SwitchScreen("game-screen");
     });
     $("#end-game-btn").on("click", () => {
-      console.log("clicked");
       location.reload();
     });
     if (game.tileGrid.tilesSolved === game.tileGrid.numTiles) {
@@ -647,7 +651,6 @@ const game = {
         const score = player.score;
         if (score === topScore) {
           topScorerNames.push(player.name);
-          console.log(topScorerNames);
         }
       }
       // Display winner(s)
@@ -947,7 +950,6 @@ const game = {
     // Using Delegation since the screen does not exist when the function is called
     $("body").on("click", "#help-btn", function () {
       $("#help-modal").modal("show");
-      console.log("help!");
     });
   },
   // Function to get current time
@@ -981,19 +983,16 @@ const game = {
       // If muted, unmute and change sound-btn text
       game.gainNode.gain.setValueAtTime(1, game.audioContext.currentTime);
       game.domSoundbtn.html(`<i class="bi bi-volume-mute-fill"></i>`);
-      console.log("muted");
     } else {
       // If unmuted, mute and change sound-btn text
       game.gainNode.gain.setValueAtTime(0, game.audioContext.currentTime);
       game.domSoundbtn.html(`<i class="bi bi-volume-up-fill"></i>`);
-      console.log("unmuted");
     }
   },
   // Function to play a specific sound
   PlaySound: function (sound) {
     // get filePath
     const soundFilePath = game.gameSounds[sound].path;
-    console.log(soundFilePath);
     // Create an AudioBufferSourceNode
     const source = game.audioContext.createBufferSource();
     // Add this to source property of gameSound object
@@ -1029,7 +1028,6 @@ $(() => {
   // Initialize AudioContext in response to a user action
   $(document).on("click", () => {
     if (game.audioContext.state === "suspended") {
-      console.log("hi");
       game.audioContext
         .resume()
         .then(() => {

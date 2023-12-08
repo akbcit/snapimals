@@ -236,7 +236,7 @@ class TileGrid {
   GetCellDim() {
     // Object to store size to dim mapping
     const sizeToDimMap = {
-      3: "14rem",
+      3: "13rem",
       4: "11rem",
       5: "8.5rem",
       6: "7rem",

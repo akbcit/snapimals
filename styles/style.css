@@ -20,7 +20,7 @@ body {
   height: 100vh;
   max-height: 100vh;
   display: grid;
-  grid-template-rows: 9rem 1fr 1rem;
+  grid-template-rows: 9rem 1fr 2rem;
 }
 
 /* Body Header styling */
@@ -69,6 +69,7 @@ body {
   display: flex;
   align-items: center;
   background: rgba(0, 0, 0, 0.3);
+  width:100%;
 }
 
 #body-footer p {
@@ -168,28 +169,28 @@ body {
   height: 2.9rem;
 }
 
-#splash-btns{
+.splash-btns{
   display: flex;
   flex-direction: row;
   gap:1rem;
 }
 
-#skip-btn {
+.skip-btn {
   text-shadow: 1px 1px 1px #fbba00, 0 0 1rem rgb(0, 0, 0),
     0 0 0.2em rgb(0, 0, 0);
 }
 
-#skip-btn:active {
+.skip-btn:active {
   /* Scale down on hover */
   transform: scale(0.95);
 }
 
-#help-btn{
+.help-btn{
   text-shadow: 1px 1px 1px #fbba00, 0 0 1rem rgb(0, 0, 0),
   0 0 0.2em rgb(0, 0, 0);
 }
 
-#help-btn:active {
+.help-btn:active {
   /* Scale down on hover */
   transform: scale(0.95);
 }
@@ -260,7 +261,7 @@ form {
 
 #score-board {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: space-around;
   align-items: center;
   position: absolute;
@@ -308,7 +309,7 @@ form {
 }
 
 .flipped-cell {
-  border: 4px solid #ffd700;
+  border: 4px solid  #ffd700;
 }
 
 .cell:hover {
@@ -331,11 +332,70 @@ form {
   transform: none;
 }
 
+#help-modal {
+  font-family: 'Roboto', sans-serif;
+}
 
-@media (max-width: 1200px) {
-  .in-game-text {
-    font-size: 2.5rem;
-  }
+.modal-content {
+  background: linear-gradient(to right, #6cb96e, #f1f1f1);
+  border-radius: 10px;
+  box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  background-color: #4CAF50;
+  color: #fff;
+  border-radius: 10px 10px 0 0;
+  padding: 15px;
+}
+
+.modal-body {
+  padding: 20px;
+  color: #333;
+}
+
+.modal-footer {
+  background-color: #4CAF50;
+  border-radius: 0 0 10px 10px;
+  padding: 15px;
+}
+
+strong {
+  color:  #fafad2;
+}
+
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+
+ul li {
+  margin-bottom: 10px;
+}
+
+ul ul {
+  margin-top: 5px;
+}
+
+.btn-secondary {
+  background-color: #868e96;
+  color: #fff;
+}
+
+.btn-primary {
+  background-color: #4CAF50;
+  color: #fff;
+}
+
+.modal-body .wild-extras li:last-child {
+  display: flex;
+  align-items: center;
+}
+
+.modal-body .wild-extras li:last-child i {
+  margin-right: 5px;
+  font-size: 1.2em;
+  color: #FFD700;
 }
 
 @media (max-width: 800px) {
@@ -356,7 +416,7 @@ form {
   }
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 1200px) {
   .in-game-text {
     font-size: 1rem;
   }
@@ -371,5 +431,16 @@ form {
   #sound-btn{
     top:16%;
     left:37%
+  }
+
+  #score-board {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-around;
+    align-items: center;
+    position: absolute;
+    left: 36%;
+    gap:0.5rem;
+    top:90%;
   }
 }

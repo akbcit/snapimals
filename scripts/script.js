@@ -942,13 +942,13 @@ const game = {
   },
   ActivateSkip: function () {
     // Using Delegation since the screen does not exist when the function is called
-    $("body").on("click", "#skip-btn", function () {
+    $("body").on("click", ".skip-btn", function () {
       game.typeWriterInterval = 0;
     });
   },
   ActivateHelp: function () {
     // Using Delegation since the screen does not exist when the function is called
-    $("body").on("click", "#help-btn", function () {
+    $("body").on("click", ".help-btn", function () {
       $("#help-modal").modal("show");
     });
   },
@@ -989,40 +989,53 @@ const game = {
       game.domSoundbtn.html(`<i class="bi bi-volume-up-fill"></i>`);
     }
   },
-  // Function to play a specific sound
   PlaySound: function (sound) {
-    // get filePath
-    const soundFilePath = game.gameSounds[sound].path;
-    // Create an AudioBufferSourceNode
-    const source = game.audioContext.createBufferSource();
-    // Add this to source property of gameSound object
-    game.gameSounds[sound].source = source;
-    // Fetch and decode the audio file
-    fetch(soundFilePath)
-      .then((response) => response.arrayBuffer())
-      .then((buffer) => game.audioContext.decodeAudioData(buffer))
-      .then((decodedData) => {
-        // Set the buffer for the source
-        source.buffer = decodedData;
-        // Connect the source to the gain node
-        source.connect(game.gainNode);
-        // Start playing the sound
-        source.start();
-      })
-      .catch((error) =>
-        console.error("Error loading and playing sound:", error)
-      );
+    // Check if the sound is already playing (adding or (flip, solve) because of duration)
+    if (!game.gameSounds[sound].isPlaying || sound==="flip" || sound==="solve") {
+      // Mark the sound as playing
+      game.gameSounds[sound].isPlaying = true;
+      // get filePath
+      const soundFilePath = game.gameSounds[sound].path;
+      // Create an AudioBufferSourceNode
+      const source = game.audioContext.createBufferSource();
+      // Add this to the source property of gameSound object
+      game.gameSounds[sound].source = source;
+      // Fetch and decode the audio file
+      fetch(soundFilePath)
+        .then((response) => response.arrayBuffer())
+        .then((buffer) => game.audioContext.decodeAudioData(buffer))
+        .then((decodedData) => {
+          // Set the buffer for the source
+          source.buffer = decodedData;
+          // Connect the source to the gain node
+          source.connect(game.gainNode);
+          // When the sound finishes playing, update isPlaying to false
+          source.onended = function () {
+            game.gameSounds[sound].isPlaying = false;
+          };
+          // Start playing the sound
+          source.start();
+        })
+        .catch((error) =>
+          console.error("Error loading and playing sound:", error)
+        );
+    }
   },
+
   StopSound: function (sound) {
     try {
-      game.gameSounds[sound].source.stop();
+      // Check if the sound source exists before stopping
+      if (game.gameSounds[sound].source) {
+        game.gameSounds[sound].source.stop();
+      }
     } catch (e) {
-      console.log("Some error with sound!");
+      console.error("Error stopping sound:", e.message);
     }
   },
 };
 
 $(() => {
+  console.log("Welcome!");
   // Enter the game
   game.Init();
   // Initialize AudioContext in response to a user action

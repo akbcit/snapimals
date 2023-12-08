@@ -400,7 +400,7 @@ ul ul {
 
 @media (max-width: 800px) {
   .in-game-text {
-    font-size: 2rem;
+    font-size: 3rem;
   }
 }
 
@@ -418,7 +418,7 @@ ul ul {
 
 @media (max-width: 1200px) {
   .in-game-text {
-    font-size: 1rem;
+    font-size: 2rem;
   }
   #clock{
     top:15.5%;

@@ -16,47 +16,47 @@ class Player {
 }
 // Animal images object
 const animalImages = {
-  bat: "../images/animals/bat.jpg",
-  bear: "../images/animals/bear.jpg",
-  beetle: "../images/animals/beetle.jpg",
-  boaConstrictor: "../images/animals/boaConstrictor.jpg",
-  buffalo: "../images/animals/buffalo.jpg",
-  capybara: "../images/animals/capybara.jpg",
-  cat: "../images/animals/cat.jpg",
-  catfish: "../images/animals/catfish.jpg",
-  cheetah: "../images/animals/cheetah.jpg",
-  crocodile: "../images/animals/crocodile.jpg",
-  eel: "../images/animals/eel.jpg",
-  elephant: "../images/animals/elephant.jpg",
-  emu: "../images/animals/emu.jpg",
-  fox: "../images/animals/fox.jpg",
-  frog: "../images/animals/frog.jpg",
-  gazelle: "../images/animals/gazelle.jpg",
-  giraffe: "../images/animals/giraffe.jpg",
-  gorilla: "../images/animals/gorilla.jpg",
-  hare: "../images/animals/hare.jpg",
-  hippo: "../images/animals/hippo.jpg",
-  hyena: "../images/animals/hyena.jpg",
-  koala: "../images/animals/koala.jpg",
-  leopard: "../images/animals/leopard.jpg",
-  lion: "../images/animals/lion.jpg",
-  meerkat: "../images/animals/meerkat.jpg",
-  monitorLizard: "../images/animals/monitorLizard.jpg",
-  parrot: "../images/animals/parrot.jpg",
-  raccoon: "../images/animals/raccoon.jpg",
-  raven: "../images/animals/raven.jpg",
-  rhino: "../images/animals/rhino.jpg",
-  snake: "../images/animals/snake.jpg",
-  spider: "../images/animals/spider.jpg",
-  spoonbill: "../images/animals/spoonbill.jpg",
-  tarsier: "../images/animals/tarsier.jpg",
-  tiger: "../images/animals/tiger.jpg",
-  turtle: "../images/animals/turtle.jpg",
-  vulture: "../images/animals/vulture.jpg",
-  warthog: "../images/animals/warthog.jpg",
-  wildebeest: "../images/animals/wildebeest.jpg",
-  wolf: "../images/animals/wolf.jpg",
-  baboon: "../images/animals/baboon.jpg",
+  bat: "./images/animals/bat.jpg",
+  bear: "./images/animals/bear.jpg",
+  beetle: "./images/animals/beetle.jpg",
+  boaConstrictor: "./images/animals/boaConstrictor.jpg",
+  buffalo: "./images/animals/buffalo.jpg",
+  capybara: "./images/animals/capybara.jpg",
+  cat: "./images/animals/cat.jpg",
+  catfish: "./images/animals/catfish.jpg",
+  cheetah: "./images/animals/cheetah.jpg",
+  crocodile: "./images/animals/crocodile.jpg",
+  eel: "./images/animals/eel.jpg",
+  elephant: "./images/animals/elephant.jpg",
+  emu: "./images/animals/emu.jpg",
+  fox: "./images/animals/fox.jpg",
+  frog: "./images/animals/frog.jpg",
+  gazelle: "./images/animals/gazelle.jpg",
+  giraffe: "./images/animals/giraffe.jpg",
+  gorilla: "./images/animals/gorilla.jpg",
+  hare: "./images/animals/hare.jpg",
+  hippo: "./images/animals/hippo.jpg",
+  hyena: "./images/animals/hyena.jpg",
+  koala: "./images/animals/koala.jpg",
+  leopard: "./images/animals/leopard.jpg",
+  lion: "./images/animals/lion.jpg",
+  meerkat: "./images/animals/meerkat.jpg",
+  monitorLizard: "./images/animals/monitorLizard.jpg",
+  parrot: "./images/animals/parrot.jpg",
+  raccoon: "./images/animals/raccoon.jpg",
+  raven: "./images/animals/raven.jpg",
+  rhino: "./images/animals/rhino.jpg",
+  snake: "./images/animals/snake.jpg",
+  spider: "./images/animals/spider.jpg",
+  spoonbill: "./images/animals/spoonbill.jpg",
+  tarsier: "./images/animals/tarsier.jpg",
+  tiger: "./images/animals/tiger.jpg",
+  turtle: "./images/animals/turtle.jpg",
+  vulture: "./images/animals/vulture.jpg",
+  warthog: "./images/animals/warthog.jpg",
+  wildebeest: "./images/animals/wildebeest.jpg",
+  wolf: "./images/animals/wolf.jpg",
+  baboon: "./images/animals/baboon.jpg",
   GetRandAnimals: function (numAnimals) {
     const randAnimals = [];
     // Store all properties in an array
@@ -213,7 +213,7 @@ class TileGrid {
   // Function to flip tile
   FlipTile(tileNum, animal) {
     let imgUrl =
-      animal === "joker" ? "../images/joker.jpg" : animalImages[animal];
+      animal === "joker" ? "./images/joker.jpg" : animalImages[animal];
     $(`#cell-${tileNum}`)
       .removeClass("unflipped-cell")
       .addClass("flipped-cell")
@@ -223,7 +223,7 @@ class TileGrid {
     $(`#cell-${tileNum}`)
       .removeClass("flipped-cell")
       .addClass("unflipped-cell")
-      .css({ "background-image": "url(../images/UnflippedTileBg.png)" });
+      .css({ "background-image": "url(./images/UnflippedTileBg.png)" });
   }
   HideTile(tileNum) {
     $(`#cell-${tileNum}`)
@@ -275,10 +275,10 @@ const game = {
   audioContext: null,
   gainNode: null,
   gameSounds: {
-    theme: { path: "../audio/safari.mp3", source: null },
-    flip: { path: "../audio/flip.wav", source: null },
-    solve: { path: "../audio/solve.mp3", source: null },
-    joker: { path: "../audio/joker.mp3", source: null },
+    theme: { path: "./audio/safari.mp3", source: null },
+    flip: { path: "./audio/flip.wav", source: null },
+    solve: { path: "./audio/solve.mp3", source: null },
+    joker: { path: "./audio/joker.mp3", source: null },
   },
   domPlaybtn: $("#play-btn"),
   domPausebtn: $("#pause-btn"),
@@ -313,7 +313,7 @@ const game = {
     if (this.activeScreen == "game-over-screen") {
     }
   },
-  ToggleRunning: function () { },
+  ToggleRunning: function () {},
   Init: function () {
     const introText = `Welcome, Explorer! Embark on a memory safari to match captivating creatures in this uncharted wilderness. Get ready, the adventure starts now!`;
     // Add event listener to skip-btn to skip-text
@@ -395,10 +395,12 @@ const game = {
     // Create prompt based on number of players
     const namesPrompt =
       game.numPlayers === 2
-        ? `Good ${game.CurrTime()} ${game.players[0].name
-        } and the other explorer! May I know your name?`
-        : `Good ${game.CurrTime()} ${game.players[0].name
-        } and the other explorers! May I know your names?`;
+        ? `Good ${game.CurrTime()} ${
+            game.players[0].name
+          } and the other explorer! May I know your name?`
+        : `Good ${game.CurrTime()} ${
+            game.players[0].name
+          } and the other explorers! May I know your names?`;
     // Add event listener to skip-btn to skip-text
     game.ActivateSkip();
     // Add event listener to help-btn
@@ -517,7 +519,7 @@ const game = {
 
   SetupGameBoard: function () {
     // reset total tome
-    game.totalTime = 0; 
+    game.totalTime = 0;
     // reset total tries
     game.totalTries = 0;
     //Stop theme song
@@ -613,7 +615,7 @@ const game = {
     // Empty text para element
     $("#winner-text").text("");
     // reset time taken and store value in a new variable
-    const finalTime = game.totalTime/1000;
+    const finalTime = game.totalTime / 1000;
     game.totalTime = 0;
     //Pause Timer if game is timed
     if (game.isTimed) {
@@ -621,7 +623,12 @@ const game = {
     }
     // Move over to game-over-screen
     game.SwitchScreen("game-over-screen");
-    game.PlaySound("theme");
+    // play theme song
+    try {
+      game.PlaySound("theme");
+    } catch (err) {
+      console.log("some error playing sound!");
+    }
     // Add event listeners to start and end game btns
     $("#restart-game-btn").on("click", () => {
       // Make Player-1 as active
@@ -656,22 +663,21 @@ const game = {
       // Display winner(s)
       let winnerText = null;
       // If only one player
-      if(game.players.length===1){
+      if (game.players.length === 1) {
         const triesText = `Well done Adi! You finished the game in ${game.totalTries} tries`;
-        const timeText = (game.isTimed) ? ` and ${finalTime} seconds!`:"";
+        const timeText = game.isTimed ? ` and ${finalTime} seconds!` : "";
         winnerText = triesText + timeText;
-      }
-      else{
-        // If more than one players
-      if (topScorerNames.length === 1) {
-        winnerText = `And the winner is ${topScorerNames[0]}!!!`;
-      } else if (topScorerNames.length === 2) {
-        winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} !!!`;
-      } else if (topScorerNames.length === 3) {
-        winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]}!!!`;
       } else {
-        winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]} & ${topScorerNames[3]}!!!`;
-      }
+        // If more than one players
+        if (topScorerNames.length === 1) {
+          winnerText = `And the winner is ${topScorerNames[0]}!!!`;
+        } else if (topScorerNames.length === 2) {
+          winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} !!!`;
+        } else if (topScorerNames.length === 3) {
+          winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]}!!!`;
+        } else {
+          winnerText = `And the winners are ${topScorerNames[0]} & ${topScorerNames[1]} & ${topScorerNames[2]} & ${topScorerNames[3]}!!!`;
+        }
       }
       // typewriter text for winner element
       game.TypeWriter(winnerText, "winner-text", 0);
@@ -693,8 +699,12 @@ const game = {
       let currAnimal = game.tileGrid.animals[tileNum];
       // if joker, score -1 and remove joker
       if (currAnimal === "joker") {
-        // Play sound
-        game.PlaySound("joker");
+        // play sound
+        try {
+          game.PlaySound("joker");
+        } catch (err) {
+          console.log("some error playing sound!");
+        }
         // Increment tiles Solved
         game.tileGrid.tilesSolved++;
         // Flip tile
@@ -725,7 +735,11 @@ const game = {
         }, 700);
       } else if (game.tileGrid.numTilesFlipped === 0) {
         // Play sound
-        game.PlaySound("flip");
+        try {
+          game.PlaySound("flip");
+        } catch (err) {
+          console.log("some error playing sound!");
+        }
         // Flip this tile
         game.tileGrid.FlipTile(tileNum, currAnimal);
         game.tileGrid.numTilesFlipped = 1;
@@ -737,7 +751,11 @@ const game = {
         // Compare currAnimal to previously flipped animal
         if (currAnimal === game.tileGrid.prevFlippedAnimal) {
           // Play sound
-          game.PlaySound("solve");
+          try {
+            game.PlaySound("solve");
+          } catch (err) {
+            console.log("some error playing sound!");
+          }
           // Score Points and update score DOM
           game.ScorePoints();
           // Update num of solved tiles
@@ -764,7 +782,11 @@ const game = {
           }, 700);
         } else {
           // Play sound
-          game.PlaySound("flip");
+          try {
+            game.PlaySound("flip");
+          } catch (err) {
+            console.log("some error playing sound!");
+          }
           // Disallow click till delay expires
           game.tileGrid.allowClick = false;
           //flip both tiles after a delay of a second
@@ -991,7 +1013,11 @@ const game = {
   },
   PlaySound: function (sound) {
     // Check if the sound is already playing (adding or (flip, solve) because of duration)
-    if (!game.gameSounds[sound].isPlaying || sound==="flip" || sound==="solve") {
+    if (
+      !game.gameSounds[sound].isPlaying ||
+      sound === "flip" ||
+      sound === "solve"
+    ) {
       // Mark the sound as playing
       game.gameSounds[sound].isPlaying = true;
       // get filePath
@@ -1046,7 +1072,11 @@ $(() => {
         .then(() => {
           console.log("AudioContext resumed successfully.");
           // Now play sound
-          game.PlaySound("theme");
+          try {
+            game.PlaySound("theme");
+          } catch (err) {
+            console.log("some error playing sound!");
+          }
         })
         .catch((error) => {
           console.error("Error resuming AudioContext:", error);

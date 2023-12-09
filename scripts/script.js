@@ -237,12 +237,12 @@ class TileGrid {
     // Object to store size to dim mapping
     const sizeToDimMap = {
       3: "13rem",
-      4: "11rem",
-      5: "8.5rem",
-      6: "7rem",
-      7: "6rem",
-      8: "5.2rem",
-      9: "4.6rem",
+      4: "10rem",
+      5: "8rem",
+      6: "6.8rem",
+      7: "5.7rem",
+      8: "5rem",
+      9: "4.5rem",
     };
     // return dimensions
     return sizeToDimMap[this.rows];
@@ -631,6 +631,10 @@ const game = {
     }
     // Add event listeners to start and end game btns
     $("#restart-game-btn").on("click", () => {
+      // set isRunning to true
+      game.isRunning = true;
+      // Ensure that the pause overlay is hidden
+      game.domPauseOverLay.css({ display: "none" });
       // Make Player-1 as active
       game.activePlayer = game.players[0];
       game.HighlightActivePlayer();
@@ -809,9 +813,9 @@ const game = {
           }, 700);
         }
       }
-      // If all tiles have been solved, end game
+      // If all tiles have been solved, end game after one sec
       if (game.tileGrid.tilesSolved === game.tileGrid.numTiles) {
-        game.EndGame();
+        window.setTimeout(game.EndGame,1000);
       }
     }
   },
@@ -1062,8 +1066,6 @@ const game = {
 
 $(() => {
   console.log("Welcome!");
-  // Enter the game
-  game.Init();
   // Initialize AudioContext in response to a user action
   $(document).on("click", () => {
     if (game.audioContext.state === "suspended") {
@@ -1083,4 +1085,12 @@ $(() => {
         });
     }
   });
+  // // Prevent the default Enter key behavior
+  window.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') {
+      e.preventDefault(); 
+    }
+  });
+  // Enter the game
+  game.Init();
 });
